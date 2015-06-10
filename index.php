@@ -1,6 +1,12 @@
 <?php
+/**
+ * Legacy example usage file
+ */
+
 ini_set('display_errors', 1);
-require_once('TwitterAPIExchange.php');
+error_reporting(-1);
+
+require_once __DIR__ . '/TwitterAPIExchange.php';
 
 /** Set access tokens here - see: https://dev.twitter.com/apps/ **/
 $settings = array(
@@ -16,7 +22,7 @@ $requestMethod = 'POST';
 
 /** POST fields required by the URL above. See relevant docs as above **/
 $postfields = array(
-    'screen_name' => 'usernameToBlock', 
+    'screen_name' => 'usernameToBlock',
     'skip_status' => '1'
 );
 
