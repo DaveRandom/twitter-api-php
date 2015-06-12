@@ -23,7 +23,7 @@ class Header implements \IteratorAggregate, \Countable
     private $values;
 
     /**
-     * @param $name
+     * @param string $name
      * @param string|string[] $values
      */
     public function __construct($name, $values = [])
