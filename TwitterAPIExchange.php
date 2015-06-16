@@ -4,7 +4,6 @@
  */
 
 use TwitterAPI\SessionCredentials;
-use TwitterAPI\MagicPropertyAccess;
 
 /**
  * Twitter-API-PHP : Simple PHP wrapper for the v1.1 API
@@ -21,8 +20,6 @@ use TwitterAPI\MagicPropertyAccess;
  */
 class TwitterAPIExchange
 {
-    use MagicPropertyAccess;
-
     /**
      * @var mixed
      * @todo maybe get rid of this?
@@ -61,8 +58,6 @@ class TwitterAPIExchange
      */
     public function __construct(array $settings)
     {
-        $this->defineMagicProperties($public = null, $readOnly = ['url', 'requestMethod']);
-
         foreach (['oauth_access_token', 'oauth_access_token_secret', 'consumer_key', 'consumer_secret'] as $key) {
             if (!isset($settings[$key])) {
                 throw new \Exception('Missing required setting: ' . $key);
@@ -75,6 +70,34 @@ class TwitterAPIExchange
         );
 
         // todo
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        if ($name === 'url') {
+            return $this->getURL();
+        } else if ($name === 'requestMethod') {
+            return $this->getRequestMethod();
+        }
+
+        throw new \LogicException('Undefined property: ' . __CLASS__ . '::' . $name);
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     */
+    public function __set($name, $value)
+    {
+        if ($name === 'url' || $name === 'requestMethod') {
+            throw new \LogicException('Cannot write to read-only property: ' . __CLASS__ . '::' . $name);
+        }
+
+        throw new \LogicException('Undefined property: ' . __CLASS__ . '::' . $name);
     }
 
     /**

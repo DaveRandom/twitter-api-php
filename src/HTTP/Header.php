@@ -2,16 +2,8 @@
 
 namespace TwitterAPI\HTTP;
 
-use TwitterAPI\MagicPropertyAccess;
-
-/**
- * @property-read string $name
- * @property string[]|\ArrayObject $values
- */
 class Header implements \IteratorAggregate, \Countable
 {
-    use MagicPropertyAccess;
-
     /**
      * @var string
      */
@@ -28,8 +20,6 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function __construct($name, $values = [])
     {
-        $this->defineMagicProperties($public = ['values'], $readOnly = ['name']);
-
         $this->name = trim((string)$name);
         $this->setValues($values);
     }

@@ -2,16 +2,8 @@
 
 namespace TwitterAPI;
 
-/**
- * @property-read $accessToken
- * @property-read $accessTokenSecret
- * @property-read $consumerKey
- * @property-read $consumerSecret
- */
 class SessionCredentials
 {
-    use MagicPropertyAccess;
-
     /**
      * @var string
      */
@@ -44,12 +36,10 @@ class SessionCredentials
             throw new \LogicException('Session credentials are immutable');
         }
 
-        $readOnlyProperties = ['accessToken', 'accessTokenSecret', 'consumerKey', 'consumerSecret'];
-        $this->defineMagicProperties($public = null, $readOnlyProperties);
-
-        foreach ($readOnlyProperties as $propName) {
-            $this->$propName = (string)$$propName;
-        }
+        $this->accessToken       = (string)$accessToken;
+        $this->accessTokenSecret = (string)$accessTokenSecret;
+        $this->consumerKey       = (string)$consumerKey;
+        $this->consumerSecret    = (string)$consumerSecret;
     }
 
     /**

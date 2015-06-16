@@ -2,19 +2,8 @@
 
 namespace TwitterAPI\HTTP;
 
-use TwitterAPI\MagicPropertyAccess;
-
-/**
- * @property string $method
- * @property string $url
- * @property \TwitterAPI\HTTP\QueryString $urlParams
- * @property \TwitterAPI\HTTP\QueryString $bodyParams
- * @property \TwitterAPI\HTTP\HeaderCollection $headers
- */
 class Request
 {
-    use MagicPropertyAccess;
-
     /**
      * @var string[]
      */
@@ -59,8 +48,6 @@ class Request
         array $bodyParams = [],
         HeaderCollection $headers = null
     ) {
-        $this->defineMagicProperties($public = ['method', 'url', 'urlParams', 'bodyParams', 'headers']);
-
         if ($url !== null) {
             $this->setURL($url);
         }
