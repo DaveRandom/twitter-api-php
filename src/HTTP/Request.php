@@ -2,7 +2,7 @@
 
 namespace TwitterAPI\HTTP;
 
-class Request
+class Request extends Message
 {
     /**
      * @var string[]
@@ -30,32 +30,17 @@ class Request
     private $bodyParams;
 
     /**
-     * @var \TwitterAPI\HTTP\HeaderCollection
-     */
-    private $headers;
-
-    /**
      * @param string $method
      * @param string $url
-     * @param array $urlParams
-     * @param array $bodyParams
-     * @param \TwitterAPI\HTTP\HeaderCollection $headers
      */
-    public function __construct(
-        $url = null,
-        $method = 'GET',
-        array $urlParams = [],
-        array $bodyParams = [],
-        HeaderCollection $headers = null
-    ) {
+    public function __construct($url = null, $method = 'GET')
+    {
+        parent::__construct(new MutableHeaderCollection, '1.1');
+
         if ($url !== null) {
             $this->setURL($url);
         }
-
         $this->setMethod($method);
-        $this->setURLParams($urlParams);
-        $this->setBodyParams($bodyParams);
-        $this->setHeaders($headers ?: new HeaderCollection);
     }
 
     /**
@@ -129,18 +114,26 @@ class Request
     }
 
     /**
-     * @return \TwitterAPI\HTTP\HeaderCollection
+     * @param \TwitterAPI\HTTP\MutableHeaderCollection $headers
      */
-    public function getHeaders()
+    public function setHeaders(MutableHeaderCollection $headers)
     {
-        return $this->headers;
+        parent::setHeaders($headers);
     }
 
     /**
-     * @param \TwitterAPI\HTTP\HeaderCollection $headers
+     * @return MutableHeaderCollection
      */
-    public function setHeaders(HeaderCollection $headers)
+    public function getHeaders()
     {
-        $this->headers = $headers;
+        return parent::getHeaders();
+    }
+
+    /**
+     * @param string $protocolVersion
+     */
+    public function setProtocolVersion($protocolVersion)
+    {
+        parent::setProtocolVersion($protocolVersion);
     }
 }

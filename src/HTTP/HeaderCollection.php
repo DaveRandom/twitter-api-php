@@ -7,21 +7,20 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
     /**
      * @var \TwitterAPI\HTTP\Header[]
      */
-    private $headers = [];
+    protected $headers = [];
 
     /**
-     * @param \TwitterAPI\HTTP\Header $header
-     * @return bool
+     * @param \TwitterAPI\HTTP\Header[] $headers
      */
-    public function addHeader(Header $header)
+    public function __construct(array $headers = [])
     {
-        $nameLower = strtolower($header->getName());
+        foreach ($headers as $header) {
+            if (!$header instanceof Header) {
+                throw new \LogicException('Headers must be instances of ' . __NAMESPACE__ . '\\Header');
+            }
 
-        if (isset($this->headers[$nameLower])) {
-            throw new \LogicException('Cannot add header ' . $header->getName() . ': already exists');
+            $this->headers[] = $header;
         }
-
-        $this->headers[$nameLower] = $header;
     }
 
     /**
@@ -46,20 +45,6 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
     public function hasHeader($name)
     {
         return isset($this->headers[strtolower($name)]);
-    }
-
-    /**
-     * @param string $name
-     */
-    public function removeHeader($name)
-    {
-        $nameLower = strtolower($name);
-
-        if (!isset($this->headers[$nameLower])) {
-            throw new \LogicException('Cannot remove header ' . $name . ': does not exist');
-        }
-
-        unset($this->headers[$nameLower]);
     }
 
     /**
@@ -128,14 +113,10 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
      */
     public function offsetSet($name, $header)
     {
-        if ($name === null && !$header instanceof Header) {
-            throw new \LogicException('Cannot add header without name');
-        }
-
-        $name = $name === null ? $header->getName() : $name;
-        $header = $header instanceof Header ? $header : new Header($name, is_array($header) ? $header : (string)$header);
-
-        $this->addHeader($name, $header);
+        throw new \LogicException(sprintf(
+            '%s objects are immutable, use a %s\\MutableHeaderCollection instead',
+            get_class($this), __NAMESPACE__
+        ));
     }
 
     /**
@@ -143,6 +124,9 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
      */
     public function offsetUnset($name)
     {
-        $this->removeHeader($name);
+        throw new \LogicException(sprintf(
+            '%s objects are immutable, use a %s\\MutableHeaderCollection instead',
+            get_class($this), __NAMESPACE__
+        ));
     }
 }
