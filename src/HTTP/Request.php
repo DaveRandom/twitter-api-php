@@ -114,10 +114,14 @@ class Request extends Message
     }
 
     /**
-     * @param \TwitterAPI\HTTP\MutableHeaderCollection $headers
+     * @param \TwitterAPI\HTTP\HeaderCollection $headers
      */
-    public function setHeaders(MutableHeaderCollection $headers)
+    public function setHeaders(HeaderCollection $headers)
     {
+        if (!$headers instanceof MutableHeaderCollection) {
+            $headers = new MutableHeaderCollection($headers->toArray());
+        }
+
         parent::setHeaders($headers);
     }
 

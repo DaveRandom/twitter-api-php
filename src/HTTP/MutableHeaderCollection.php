@@ -10,13 +10,7 @@ class MutableHeaderCollection extends HeaderCollection
      */
     public function addHeader(Header $header)
     {
-        $nameLower = strtolower($header->getName());
-
-        if (isset($this->headers[$nameLower])) {
-            throw new \LogicException('Cannot add header ' . $header->getName() . ': already exists');
-        }
-
-        $this->headers[$nameLower] = $header;
+        parent::addHeader($header);
     }
 
     /**
@@ -24,13 +18,7 @@ class MutableHeaderCollection extends HeaderCollection
      */
     public function removeHeader($name)
     {
-        $nameLower = strtolower($name);
-
-        if (!isset($this->headers[$nameLower])) {
-            throw new \LogicException('Cannot remove header ' . $name . ': does not exist');
-        }
-
-        unset($this->headers[$nameLower]);
+        parent::removeHeader($name);
     }
 
     /**

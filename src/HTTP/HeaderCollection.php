@@ -7,7 +7,7 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
     /**
      * @var \TwitterAPI\HTTP\Header[]
      */
-    protected $headers = [];
+    private $headers = [];
 
     /**
      * @param \TwitterAPI\HTTP\Header[] $headers
@@ -19,8 +19,42 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
                 throw new \LogicException('Headers must be instances of ' . __NAMESPACE__ . '\\Header');
             }
 
-            $this->headers[] = $header;
+            $this->addHeader($header);
         }
+    }
+
+    /**
+     * @param \TwitterAPI\HTTP\Header $header
+     * @return bool
+     */
+    protected function addHeader(Header $header)
+    {
+        $nameLower = strtolower($header->getName());
+
+        if (isset($this->headers[$nameLower])) {
+            throw new \LogicException('Cannot add header ' . $header->getName() . ': already exists');
+        }
+
+        $this->headers[$nameLower] = $header;
+    }
+
+    /**
+     * @param \TwitterAPI\HTTP\Header|string $headerOrName
+     */
+    protected function removeHeader($headerOrName)
+    {
+        $name = $headerOrName instanceof Header ? $headerOrName->getName() : (string)$headerOrName;
+        $nameLower = strtolower($name);
+
+        if (!isset($this->headers[$nameLower])) {
+            throw new \LogicException('Cannot remove header ' . $name . ': does not exist');
+        }
+
+        if ($headerOrName instanceof Header && $this->headers[$nameLower] !== $headerOrName) {
+            throw new \LogicException('Cannot remove header: supplied instance not found in this collection');
+        }
+
+        unset($this->headers[$nameLower]);
     }
 
     /**
@@ -45,6 +79,14 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
     public function hasHeader($name)
     {
         return isset($this->headers[strtolower($name)]);
+    }
+
+    /**
+     * @return \TwitterAPI\HTTP\Header[]
+     */
+    public function toArray()
+    {
+        return array_values($this->headers);
     }
 
     /**
