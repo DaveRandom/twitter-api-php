@@ -4,39 +4,42 @@
  */
 
 use TwitterAPI\SessionCredentials;
+use TwitterAPI\OAuthBuilder;
+use TwitterAPI\HTTP\CurlClient;
+use TwitterAPI\HTTP\Request;
 
 /**
- * Twitter-API-PHP : Simple PHP wrapper for the v1.1 API
- *
- * PHP version 5.3.10
- *
- * @category Awesomeness
- * @package  Twitter-API-PHP
- * @author   James Mallison <me@j7mbo.co.uk>
- * @license  MIT License
- * @link     http://github.com/j7mbo/twitter-api-php
  * @property-read string $url
  * @property-read string $requestMethod
  */
 class TwitterAPIExchange
 {
     /**
-     * @var mixed
-     * @todo maybe get rid of this?
-     */
-    protected $oauth;
-
-    /**
      * @var \TwitterAPI\SessionCredentials
      */
     private $sessionCredentials;
+
+    /**
+     * @var \TwitterAPI\HTTP\CurlClient
+     */
+    private $client;
+
+    /**
+     * @var \TwitterAPI\OAuthBuilder
+     */
+    private $oauthBuilder;
+
+    /**
+     * @var \TwitterAPI\HTTP\Request
+     */
+    private $request;
 
     /**
      * @return string
      */
     private function getURL()
     {
-        // todo
+        return $this->request->getURL();
     }
 
     /**
@@ -44,7 +47,7 @@ class TwitterAPIExchange
      */
     private function getRequestMethod()
     {
-        // todo
+        return $this->request->getMethod();
     }
 
     /**
@@ -58,7 +61,7 @@ class TwitterAPIExchange
      */
     public function __construct(array $settings)
     {
-        foreach (['oauth_access_token', 'oauth_access_token_secret', 'consumer_key', 'consumer_secret'] as $key) {
+        foreach (array('oauth_access_token', 'oauth_access_token_secret', 'consumer_key', 'consumer_secret') as $key) {
             if (!isset($settings[$key])) {
                 throw new \Exception('Missing required setting: ' . $key);
             }
@@ -69,7 +72,9 @@ class TwitterAPIExchange
             $settings['consumer_key'], $settings['consumer_secret']
         );
 
-        // todo
+        $this->oauthBuilder = new OAuthBuilder($this->sessionCredentials);
+        $this->client = new CurlClient;
+        $this->request = new Request;
     }
 
     /**
@@ -109,7 +114,8 @@ class TwitterAPIExchange
      */
     public function setPostfields(array $array)
     {
-        // todo
+        $this->request->setBodyParams($array);
+        return $this;
     }
 
     /**
@@ -121,7 +127,10 @@ class TwitterAPIExchange
      */
     public function setGetfield($string)
     {
-        // todo
+        parse_str(ltrim($string, '?'), $queryParams);
+        $this->request->setURLParams($queryParams);
+
+        return $this;
     }
 
     /**
@@ -131,7 +140,7 @@ class TwitterAPIExchange
      */
     public function getGetfield()
     {
-        // todo
+        return '?' . http_build_query($this->request->getURLParams()->getArrayCopy());
     }
 
     /**
@@ -141,7 +150,7 @@ class TwitterAPIExchange
      */
     public function getPostfields()
     {
-        // todo
+        return $this->request->getURLParams()->getArrayCopy();
     }
 
     /**
@@ -150,14 +159,21 @@ class TwitterAPIExchange
      *
      * @param string $url           The API url to use. Example: https://api.twitter.com/1.1/search/tweets.json
      * @param string $requestMethod Either POST or GET
-     *
      * @throws \Exception
-     *
      * @return \TwitterAPIExchange Instance of self for method chaining
      */
     public function buildOauth($url, $requestMethod)
     {
-        // todo
+        try {
+            $this->request->setURL($url);
+            $this->request->setMethod($requestMethod);
+
+            $this->oauthBuilder->buildOAuthAuthorizationHeader($this->request);
+
+            return $this;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -165,14 +181,21 @@ class TwitterAPIExchange
      *
      * @param boolean $return      If true, returns data. This is left in for backward compatibility reasons
      * @param array   $curlOptions Additional Curl options for this request
-     *
      * @throws \Exception
-     *
      * @return string json If $return param is true, returns json data.
      */
     public function performRequest($return = true, $curlOptions = array())
     {
-        // todo
+        if (!is_bool($return)) { // pointless, retained for BC only
+            throw new \Exception('$return parameter must be true or false');
+        }
+
+        try {
+            $response = $this->client->sendRequest($this->request, $curlOptions);
+            return $response->getBody();
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -180,15 +203,21 @@ class TwitterAPIExchange
      *
      * @param string $url
      * @param string $method
-     * @param string $data
-     * @param array  $curlOptions
-     *
+     * @param string|array $data
+     * @param array $curlOptions
      * @throws \Exception
-     *
-     * @return string The json response from the server
+     * @return string
      */
     public function request($url, $method = 'get', $data = null, $curlOptions = array())
     {
-        // todo
+        if (strtolower($method) === 'get') {
+            $this->setGetfield($data);
+        } else {
+            $this->setPostfields($data);
+        }
+
+        return $this
+            ->buildOauth($url, $method)
+            ->performRequest(true, $curlOptions);
     }
 }
