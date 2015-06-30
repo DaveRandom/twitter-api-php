@@ -7,12 +7,12 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
     /**
      * @var \TwitterAPI\HTTP\Header[]
      */
-    private $headers = [];
+    private $headers = array();
 
     /**
      * @param \TwitterAPI\HTTP\Header[] $headers
      */
-    public function __construct(array $headers = [])
+    public function __construct(array $headers = array())
     {
         foreach ($headers as $header) {
             if (!$header instanceof Header) {

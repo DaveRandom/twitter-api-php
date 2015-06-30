@@ -28,7 +28,12 @@ class Client
         HTTPClient $httpClient = null
     ) {
         $this->oauthBuilder = $oauthBuilder;
-        $this->httpClient = $httpClient ?: (new HTTPClientFactory)->select();
+
+        if (!$httpClient) {
+            $httpClientFactory = new HTTPClientFactory;
+            $httpClient = $httpClientFactory->select();
+        }
+        $this->httpClient = $httpClient;
     }
 
     /**

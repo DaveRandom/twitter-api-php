@@ -18,7 +18,7 @@ class Header implements \IteratorAggregate, \Countable
      * @param string $name
      * @param string|string[] $values
      */
-    public function __construct($name, $values = [])
+    public function __construct($name, $values = array())
     {
         $this->name = trim((string)$name);
         $this->setValues($values);
@@ -60,7 +60,7 @@ class Header implements \IteratorAggregate, \Countable
     public function setValues($values)
     {
         if (!is_array($values)) {
-            $values = [$values];
+            $values = array($values);
         }
 
         $this->values = new \ArrayObject;

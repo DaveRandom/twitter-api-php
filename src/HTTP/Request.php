@@ -7,7 +7,7 @@ class Request extends Message
     /**
      * @var string[]
      */
-    private static $permittedMethods = ['GET', 'POST'];
+    private static $permittedMethods = array('GET', 'POST');
 
     /**
      * @var string

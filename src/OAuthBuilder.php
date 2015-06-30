@@ -27,14 +27,14 @@ class OAuthBuilder
     {
         $now = (string)time();
 
-        return [
+        return array(
             'oauth_consumer_key' => $sessionCredentials->getConsumerKey(),
             'oauth_nonce' => $now, // todo: generate a better nonce?
             'oauth_signature_method' => 'HMAC-SHA1',
             'oauth_timestamp' => $now,
             'oauth_token' => $sessionCredentials->getAccessToken(),
-            'oauth_version' => '1.0'
-        ];
+            'oauth_version' => '1.0',
+        );
     }
 
     /**
@@ -51,7 +51,7 @@ class OAuthBuilder
 
         ksort($oauthData);
 
-        $fields = [];
+        $fields = array();
         foreach($oauthData as $key => $value) {
             $fields[] = rawurlencode($key) . '=' . rawurlencode($value);
         }
@@ -98,7 +98,7 @@ class OAuthBuilder
      */
     private function buildAuthorizationHeader($oauthData, $signature)
     {
-        $values = ['oauth_signature' => $signature];
+        $values = array('oauth_signature' => $signature);
 
         foreach ($oauthData as $key => $value) {
             $values[] = $key . '="' . rawurlencode($value) . '"';
