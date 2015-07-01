@@ -2,7 +2,7 @@
 
 namespace TwitterAPI\HTTP;
 
-class Header implements \IteratorAggregate, \Countable
+class Header implements \Iterator, \Countable
 {
     /**
      * @var string
@@ -13,6 +13,16 @@ class Header implements \IteratorAggregate, \Countable
      * @var \ArrayObject
      */
     private $values;
+
+    /**
+     * @var int
+     */
+    private $counter = 0;
+
+    /**
+     * @var \Iterator
+     */
+    private $iterator;
 
     /**
      * @param string $name
@@ -51,7 +61,7 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function getValues()
     {
-        return $this->values;
+        return array_values($this->values->getArrayCopy());
     }
 
     /**
@@ -65,7 +75,8 @@ class Header implements \IteratorAggregate, \Countable
 
         $this->values = new \ArrayObject;
         foreach ($values as $value) {
-            $this->values[] = trim((string)$value);
+            $value = trim((string)$value);
+            $this->values[$value] = $value;
         }
     }
 
@@ -75,13 +86,7 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function hasValue($needle)
     {
-        foreach ($this->values as $value) {
-            if ($value === $needle) {
-                return true;
-            }
-        }
-
-        return false;
+        return isset($this->values[trim((string)$needle)]);
     }
 
     /**
@@ -89,7 +94,8 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function addValue($value)
     {
-        $this->values[] = trim((string)$value);
+        $value = trim((string)$value);
+        $this->values[$value] = $value;
     }
 
     /**
@@ -97,22 +103,49 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function removeValue($needle)
     {
-        foreach ($this->values as $key => $value) {
-            if ($value === $needle) {
-                unset($this->values[$needle]);
-                return;
-            }
+        $value = trim((string)$needle);
+
+        if (!isset($this->values[$value])) {
+            throw new \LogicException('Cannot remove non-existent value: ' . $needle);
         }
 
-        throw new \LogicException('Cannot remove non-existent value: ' . $needle);
+        unset($this->values[$value]);
     }
 
     /**
-     * @return \Iterator
+     * @return string
      */
-    public function getIterator()
+    public function current()
     {
-        return $this->values->getIterator();
+        $this->iterator->current();
+    }
+
+    public function next()
+    {
+        $this->iterator->next();
+    }
+
+    /**
+     * @return int
+     */
+    public function key()
+    {
+        return $this->counter++;
+    }
+
+    /**
+     * @return bool
+     */
+    public function valid()
+    {
+        return $this->iterator->valid();
+    }
+
+    public function rewind()
+    {
+        $this->counter = 0;
+        $this->iterator = $this->values->getIterator();
+        $this->iterator->rewind();
     }
 
     /**
