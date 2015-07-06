@@ -25,7 +25,6 @@ class HeaderCollection implements \ArrayAccess, \Iterator, \Countable
 
     /**
      * @param \TwitterAPI\HTTP\Header $header
-     * @return bool
      */
     protected function addHeader(Header $header)
     {

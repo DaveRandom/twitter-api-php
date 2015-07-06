@@ -6,6 +6,7 @@
 use TwitterAPI\SessionCredentials;
 use TwitterAPI\OAuthBuilder;
 use TwitterAPI\HTTP\CurlClient;
+use TwitterAPI\HTTP\Header;
 use TwitterAPI\HTTP\Request;
 
 /**
@@ -75,6 +76,8 @@ class TwitterAPIExchange
         $this->oauthBuilder = new OAuthBuilder($this->sessionCredentials);
         $this->client = new CurlClient;
         $this->request = new Request;
+
+        $this->request->getHeaders()->addHeader(new Header('Expect', '')); // todo: Connection: close?
     }
 
     /**
@@ -168,7 +171,8 @@ class TwitterAPIExchange
             $this->request->setURL($url);
             $this->request->setMethod($requestMethod);
 
-            $this->oauthBuilder->buildOAuthAuthorizationHeader($this->request);
+            $headerValue = $this->oauthBuilder->buildOAuthAuthorizationHeader($this->request);
+            $this->request->getHeaders()->addHeader(new Header('Authorization', $headerValue));
 
             return $this;
         } catch (\Exception $e) {
@@ -190,9 +194,12 @@ class TwitterAPIExchange
             throw new \Exception('$return parameter must be true or false');
         }
 
+        $curlOptions += array(CURLOPT_TIMEOUT => 10);
+
         try {
-            $response = $this->client->sendRequest($this->request, $curlOptions);
-            return $response->getBody();
+            return $this->client
+                ->sendRequest($this->request, $curlOptions)
+                ->getBody();
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), $e->getCode(), $e);
         }
